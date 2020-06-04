@@ -1,0 +1,63 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will download a prebuilt Ruby version, install dependencies and run tests with Rake
+# For more information see: https://github.com/marketplace/actions/setup-ruby-jruby-and-truffleruby
+
+name: Ruby
+
+on:
+  push:
+    branches: [ master]
+  pull_request:
+    branches: [ master]
+
+jobs:
+  IC:
+
+    runs-on: ubuntu-latest
+    env:
+      DISCORD_WEBHOOK: https://discordapp.com/api/webhooks/716752068852973598/7Ac3cmqR2WwwKra8FeR2t1WMVt0HeZBC-wCBMhYfoKWo5rWg63XQ0g8ZO0wnGTYe5gm5
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Ruby
+    # To automatically get bug fixes and new Ruby versions for ruby/setup-ruby,
+    # change this to (see https://github.com/ruby/setup-ruby#versioning):
+    # uses: ruby/setup-ruby@v1
+      uses: ruby/setup-ruby@ec106b438a1ff6ff109590de34ddc62c540232e0
+      with:
+        ruby-version: 2.6.5
+    - name: Install dependencies
+      run: bundle install
+    - name: Run tests
+      run: rspec
+    - name: Run acceptance tests
+      run: cucumber
+    - name: Check rubycritic
+      run: rubycritic -f html --no-browser
+    - name: update index
+      run: |
+        cat > tmp/rubycritic/index.md <<EOL
+        ---
+          permalink: /overview.html
+        ---
+        EOL
+    - name: Deploy to GitHub Pages
+      if: success()
+      uses: crazy-max/ghaction-github-pages@v2
+      with:
+        target_branch: gh-pages
+        build_dir: tmp/rubycritic/
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Discord notification
+      if: ${{ success() }}
+      uses: Ilshidur/action-discord@759f6ea4dc493b8bd1bb35ae7fbd7ae10fcea129
+      with:
+        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} looks ok!!.'
+    - name: The job has failed
+      if: ${{ failure() }}
+      uses: Ilshidur/action-discord@759f6ea4dc493b8bd1bb35ae7fbd7ae10fcea129
+      with:
+        args: 'UPS something fails in {{ EVENT_PAYLOAD.repository.full_name }}, please check the IC flow!.'
