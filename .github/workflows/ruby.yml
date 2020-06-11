@@ -51,6 +51,14 @@ jobs:
         build_dir: tmp/rubycritic/
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Merge to release
+      if: ${{ success() }}
+      uses: devmasx/merge-branch@v1.1.0
+      with:
+        type: now
+        target_branch: 'release'
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
     - name: Discord notification
       if: ${{ success() }}
       uses: Ilshidur/action-discord@759f6ea4dc493b8bd1bb35ae7fbd7ae10fcea129
@@ -61,11 +69,3 @@ jobs:
       uses: Ilshidur/action-discord@759f6ea4dc493b8bd1bb35ae7fbd7ae10fcea129
       with:
         args: 'UPS something fails in {{ EVENT_PAYLOAD.repository.full_name }}, please check the IC flow!.'
-    - name: Merge to release
-      if: ${{ success() }}
-      uses: devmasx/merge-branch@v1.1.0
-      with:
-        type: now
-        target_branch: 'release'
-      env:
-        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
