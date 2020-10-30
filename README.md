@@ -1,8 +1,9 @@
-![](https://github.com/kleer-la/template2_6_5/workflows/Ruby/badge.svg)
+![](https://github.com/JoelGuimack/mi_app/workflows/Ruby/badge.svg)
 
 para ver el reporte de analisis de codigo:
 
-https://kleer-la.github.io/template2_6_5/overview.html#
+https://mi_usuario.github.io/mi_app/overview.html#
+
 
 
 ### Para el setup sin docker:
